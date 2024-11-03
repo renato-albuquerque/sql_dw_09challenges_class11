@@ -29,7 +29,7 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 - Resolver 09 desafios + 01 desafio bônus.
 
 `Parte 04`
-- Resolver as 09 questões relacionadas ao schema `dw` (Data warehouse). 
+- Resolução de 09 questões relacionadas ao schema `dw` (Data warehouse). 
 
 ### Enunciado das Questões:
 ![screenshot](/images/dw_all_questions.png) <br>
@@ -42,7 +42,11 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.dim_cliente;
 
+select dc.nome, dc.sobrenome, dc.data_nascimento
+from dw.dim_cliente dc
+order by dc.data_nascimento;
 ```
 
 - Visualização: <br>
@@ -55,7 +59,12 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.fato_vendas;
 
+select fv.id_venda, fv.valor_venda
+from dw.fato_vendas fv
+where fv.valor_venda > 1000
+order by fv.valor_venda desc;
 ```
 
 - Visualização: <br>
@@ -68,7 +77,11 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.fato_vendas;
 
+select fv.id_venda, fv.valor_venda
+from dw.fato_vendas fv
+order by fv.valor_venda desc;
 ```
 
 - Visualização: <br>
@@ -81,7 +94,14 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.fato_vendas;
 
+select fv.id_vendedor, 
+		sum(fv.quantidade) as qtde_vendas,
+		sum(fv.valor_venda) as receita_total
+from dw.fato_vendas fv
+group by fv.id_vendedor
+order by receita_total desc;
 ```
 
 - Visualização: <br>
@@ -94,7 +114,16 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.fato_vendas;
 
+select fv.id_venda, 
+	   fv.valor_venda,
+		case
+			when fv.valor_venda > 2000 then 'Alta'
+			when fv.valor_venda between 1000 and 2000 then 'Média'
+			else 'Baixa'
+		end as categoria_venda
+from dw.fato_vendas fv;
 ```
 
 - Visualização: <br>
@@ -103,11 +132,17 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 <br>
 
 ## Desafio 06 <br>
-- Escreva uma consulta SQL que selecione o nome e sobrenome dos clientes junto com o valor_vendadas vendas, combinando as tabelas dim_clientee fato_vendaspela coluna id_cliente. <br>
+- Escreva uma consulta SQL que selecione o nome e sobrenome dos clientes junto com o valor_venda das vendas, combinando as tabelas dim_clientee fato_vendas pela coluna id_cliente. <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.dim_cliente; --id_cliente
+select * from dw.fato_vendas; --id_cliente
 
+select dc.nome, dc.sobrenome, fv.valor_venda
+from dw.fato_vendas fv
+inner join dw.dim_cliente dc on fv.id_cliente = dc.id_cliente
+order by fv.valor_venda desc;
 ```
 
 - Visualização: <br>
@@ -120,11 +155,36 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.fato_vendas;
 
+update dw.fato_vendas
+set desconto_aplicado = 
+	case
+		when valor_venda > 1000 then 0.10
+		when valor_venda between 500 and 1000 then 0.05
+		else 0
+	end;
 ```
 
 - Visualização: <br>
 ![screenshot](/images/ex07.png) <br>
+
+<br>
+
+## Desafio 07.1 `(Extra)` <br>
+- Consultar o valor das vendas com o desconto aplicado. <br>
+
+- Comandos SQL: <br>
+```
+select id_venda,
+		valor_venda,
+		desconto_aplicado,
+		valor_venda - (valor_venda * desconto_aplicado)::numeric(10,2) as valor_venda_desconto
+from dw.fato_vendas;
+```
+
+- Visualização: <br>
+![screenshot](/images/ex07_1.png) <br>
 
 <br>
 
@@ -133,7 +193,13 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.dim_cliente; --id_cliente
+select * from dw.fato_vendas; --id_cliente
 
+select dc.nome, dc.sobrenome
+from dw.fato_vendas fv
+inner join dw.dim_cliente dc on fv.id_cliente = dc.id_cliente
+where fv.id_cliente > 3;
 ```
 
 - Visualização: <br>
@@ -146,7 +212,17 @@ Instrutora: [Nayara Wakweski](https://github.com/NayaraWakewski) <br>
 
 - Comandos SQL: <br>
 ```
+select * from dw.dim_tempo; --id_tempo
+select * from dw.fato_vendas; --id_tempo
 
+select dt.mes,
+		dt.nome_mes,
+		dt.ano,
+		sum(fv.valor_venda) as receita_total_mensal
+from dw.fato_vendas fv
+inner join dw.dim_tempo dt on fv.id_tempo = dt.id_tempo
+group by dt.ano, dt.mes, dt.nome_mes
+order by dt.ano, dt.mes asc;
 ```
 
 - Visualização: <br>
